@@ -4,25 +4,40 @@ const io = require('socket.io');
 const app = express();
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
+const authRoute = require('./src/routes/authRoutes');
+const userRoute = require('./src/routes/userRoutes');
+const chatRoute = require('./src/routes/chatRoutes');
+const connectDB = require('./src/config/db');
+const authMiddleware = require('./src/middlewares/authMiddleware');
+const validateMiddleware = require('./src/middlewares/validateMiddleware');
+const loggerMiddleware = require('./src/middlewares/loggerMiddleware');
+
+require('dotenv').config();
 
 // Middleware to parse URL-encoded bodies (like form data)
 app.use(express.urlencoded({ extended: true }));
 
-
-require('dotenv').config();
-
 //middlewares
 app.use(express.json());
 app.use(express.static('public'));
+app.use("/v1/auth",authMiddleware, authRoute);
+app.use("/v1/user", userRoute);
+app.use("v1/chat", chatRoute);
 
 //app configuration
 app.set('view engine', 'ejs');
 app.set('views', './src/views/pages');
 
+//connect database
+connectDB();
 
 const server = http.createServer(app);
 const socketIo = io(server);
 
+//entry point of the application
+app.get("/", (req, res)=>{
+    res.render('register');
+});
 
 socketIo.on("connection", (socket)=>{
     console.log("New Connection");
@@ -41,26 +56,20 @@ chatNameSpace.on("connection",(chat)=>{
 });
 
 app.get("/check", (req, res)=>{
-    res.send("Server is up");
-})
+    res.send("Hello World!");
+});
 
-
+//!server up code
 server.listen(process.env.PORT, (req, res)=>{
     console.log(`Server is running on port ${process.env.PORT}`);
 });
 
 
-//other parts
-app.get("/", (req, res)=>{
-    res.render('register');
-});
-
-
-// register a user 
-app.post("/v1/register", (req, res)=>{
-    const { email, password, confirmPassword } = req.body;
-    res.send(req.body);
-});
+// // register a user 
+// app.post("/v1/register", (req, res)=>{
+//     const { email, password, confirmPassword } = req.body;
+//     res.send(req.body);
+// });
 
 
 app.get("/login", (req, res)=>{
