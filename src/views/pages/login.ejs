@@ -6,22 +6,22 @@
     <title>QuickTalk - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body class="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
         <!-- Logo -->
-        <div id="logo" class="flex justify-center mb-4 opacity-0">
+        <!-- <div id="logo" class="flex justify-center mb-4 opacity-0">
             <img src="../../public/images/Gemini_Generated_Image_zgc49lzgc49lzgc4.jpeg" alt="QuickTalk Logo" class="w-24">
-        </div>
+        </div> -->
 
         <h2 class="text-3xl font-bold text-gray-800 mb-4">Log In to Your Account</h2>
-        
+
         <!-- Login Form -->
-         
-        <form id="loginForm" class="space-y-4" action="/v1/auth/login" method="POST">
-            <input type="email" name="email" placeholder="Email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105">
+        <form id="loginForm" class="space-y-4">
+            <input type="email" id="email" name="email" placeholder="Email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105">
             
-            <input type="password" name="password" placeholder="Password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105">
+            <input type="password" id="password" name="password" placeholder="Password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition transform hover:scale-105">
 
             <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg shadow-md transition transform hover:scale-105 hover:bg-blue-600">
                 Log In
@@ -29,12 +29,40 @@
         </form>
 
         <p class="mt-4 text-gray-600">Don't have an account? <a href="/" class="text-blue-500 hover:underline">Sign up</a></p>
+
+        <!-- Message Box -->
+        <p id="message" class="mt-4 text-red-500 hidden"></p>
     </div>
 
     <!-- GSAP Animations -->
     <script>
-        gsap.to("#logo", { opacity: 1, y: -10, duration: 1, ease: "bounce" });
-        gsap.from("form input, button", { opacity: 0, y: 20, duration: 0.6, stagger: 0.2 });
+        // gsap.to("#logo", { opacity: 1, y: -10, duration: 1, ease: "bounce" });
+        // gsap.from("form input, button", { opacity: 0, y: 20, duration: 0.6, stagger: 0.2 });
+        console.log("hello");
+        $(document).ready(function() {
+            $("#loginForm").submit(function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                let email = $("#email").val();
+                let password = $("#password").val();
+
+                $.ajax({
+                    url: "/v1/auth/login",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({ email: email, password: password }),
+                    success: function(response) {
+                        console.log(response);
+                        $("#message").removeClass("hidden").addClass("text-green-500").text("Login successful!");
+                        // setTimeout(() => window.location.href = "/dashboard", 1500);
+                    },
+                    error: function(xhr) {
+                        let errorMsg = xhr.responseJSON?.message || "Invalid credentials!";
+                        $("#message").removeClass("hidden").text(errorMsg);
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

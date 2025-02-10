@@ -11,6 +11,7 @@ const connectDB = require('./src/config/db');
 const authMiddleware = require('./src/middlewares/authMiddleware');
 const validateMiddleware = require('./src/middlewares/validateMiddleware');
 const loggerMiddleware = require('./src/middlewares/loggerMiddleware');
+const path = require('path');
 
 require('dotenv').config();
 
@@ -19,10 +20,10 @@ app.use(express.urlencoded({ extended: true }));
 
 //middlewares
 app.use(express.json());
-app.use(express.static('public'));
 app.use("/v1/auth",authMiddleware, authRoute);
 app.use("/v1/user", userRoute);
 app.use("v1/chat", chatRoute);
+app.use(express.static(path.join(__dirname, "public")));
 
 //app configuration
 app.set('view engine', 'ejs');
